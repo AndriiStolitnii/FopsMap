@@ -1,24 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useState} from 'react';
+import axios from 'axios';
+import Fops from './Fops';
+import MyMap from './Map';
 
 function App() {
+  const [persons, setPerson] = useState([]);
+
+  const [page, setPage] = useState(1);
+
+  const [query, setQuery] = useState('');
+
+  function search() {
+    axios.get(`https://dataua.net/api/v1/search/data/?search=${query}&page=${page}`).then(res => {
+      const persons = res.data.data.fops;
+      setPerson(persons);
+      })
+  }
+
+  function queryHandler(e) {
+    console.log('handler', query, setQuery)
+    setQuery(e.target.value);
+  }
+
+  function nextPage() {
+    setPage(page + 1);
+    search();
+  }
+
+  
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <input type='text' onChange={queryHandler}></input>
+      <button onClick={search}>Search</button>
+      <button onClick={nextPage}>Next Page</button>
+      <ul>
+        { persons.map((person, i) => <Fops person={person} key={i}/>)}
+      </ul>
+      <MyMap />
     </div>
   );
 }
